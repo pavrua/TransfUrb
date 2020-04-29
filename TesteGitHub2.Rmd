@@ -2,9 +2,13 @@
 title: "TesteGitHub2"
 author: "Paulo Batista"
 date: "29/04/2020"
+<<<<<<< HEAD
 output: 
   html_document: 
     keep_md: yes
+=======
+output: html_document
+>>>>>>> 5f7c316c163c726c180e483577d733324028bd3d
 ---
 
 Teste de como fazer o meu próprio report
