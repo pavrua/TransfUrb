@@ -1,5 +1,5 @@
 ---
-title: "Teste GitHub"
+title: "Teste GitHub2"
 author: "Paulo Batista"
 date: "29/04/2020"
 output: github_document
