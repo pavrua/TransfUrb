@@ -1,0 +1,18 @@
+---
+title: "TesteGitHub2"
+author: "Paulo Batista"
+date: "29/04/2020"
+output: 
+  html_document: 
+    keep_md: yes
+---
+
+Teste de como fazer o meu próprio report
+
+```{r}
+a = rnorm(10, 0, 1)
+b = rnorm(10, 10,14)
+
+plot(a,b)
+```
+
