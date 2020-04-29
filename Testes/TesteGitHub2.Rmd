@@ -8,6 +8,7 @@ output: github_document
 
 
 Teste de como fazer o meu próprio report
+fazer novo teste aqui
 
 ```{r}
 a = rnorm(10, 0, 1)
