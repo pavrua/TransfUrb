@@ -1,5 +1,5 @@
 ####
-# | 2020-05-09 |
+# | 2020-05-11 |
 # PROCESSOS TRANSFORMACAO URBBANA
 # GET DATA AND PRE-PROCESSING  ----
 ####
@@ -23,19 +23,18 @@ pathUA = "C:/Users/pauloricardolb/Universidade de Aveiro/OP_DRIVIT-UP - Document
 
 path = pathUA
 
-
-setwd(paste(path, "03_TRABALHOS_DESENVOLVIDOS/023_DSS_COMPONENTES\024_DEMOG_ECON\0241_PadroesTransfUrbana_JAN/MODELACAO/TransfUrb/PreProcessing", sep=""))
-
-
-OUT.tables.path = paste(path, "02_RECURSOS/023_DSS_COMPONENTES/024_DEMOG_ECON/0241_PadroesTransfUrbana_JAN/MODELACAO/OUT.tables/", sep = "")
+setwd(paste(path, "02_TRABALHOS_DESENVOLVIDOS/023_DSS_COMPONENTES/0230_DEMOG_ECON/02301_PadroesTransfUrbana_JAN/MODELACAO/TransfUrb/PreProcessing", sep=""))
 
 
-sourceTABLE_demografia = paste(path, "02_RECURSOS/020_DADOSGERAIS/TABELAS/DEMOGRAFIA/POPULACAO_GE5anos_CENSOS_91_01_11/", sep="")
+OUT.tables.path = paste(path, "02_TRABALHOS_DESENVOLVIDOS/023_DSS_COMPONENTES/0230_DEMOG_ECON/02301_PadroesTransfUrbana_JAN/MODELACAO/OUT.tables/", sep = "")
 
-sourceSIG_ADMIN_CAOP_BASES_gdb = paste(path, "02_RECURSOS/020_DADOSGERAIS/SIG/BASES_ADMIN_NACIONAL/ADMIN_CAOP_BASES.gdb", sep = "")
-sourceSIG_GEODATA_VARIOS_gdb = paste(path, "02_RECURSOS/020_DADOSGERAIS/SIG/GEODATA_VARIOS.gdb", sep = "")
-sourceSIG_POIs_gdb = paste(path, "02_RECURSOS/020_DADOSGERAIS/SIG/OSM_POIs_20200211/OSM_pois.gdb", sep = "")
-sourceSIG_COS_gdb = paste(path, "02_RECURSOS/020_DADOSGERAIS/SIG/COS/COS.gdb", sep = "")
+
+sourceTABLE_demografia = paste(path, "01_BASESDEDADOS/TABELAS/DEMOGRAFIA/POPULACAO_GE5anos_CENSOS_91_01_11/", sep="")
+
+sourceSIG_ADMIN_CAOP_BASES_gdb = paste(path, "01_BASESDEDADOS/SIG/BASES_ADMIN_NACIONAL/ADMIN_CAOP_BASES.gdb", sep = "")
+sourceSIG_GEODATA_VARIOS_gdb = paste(path, "01_BASESDEDADOS/SIG/GEODATA_VARIOS.gdb", sep = "")
+sourceSIG_POIs_gdb = paste(path, "01_BASESDEDADOS/SIG/OSM_POIs_20200211/OSM_pois.gdb", sep = "")
+sourceSIG_COS_gdb = paste(path, "01_BASESDEDADOS/SIG/COS/COS.gdb", sep = "")
 
 
 
@@ -78,8 +77,8 @@ CENSOS1991_POP =  read_delim(file = paste(sourceTABLE_demografia, "C1991_BGRI_GE
                                                    GE_90_94 = col_double(),
                                                    GE_95_99 = col_double(),
                                                    GE_100e = col_double()
-                                                   )
                              )
+)
 
 
 
@@ -236,7 +235,7 @@ OUT.POPCENSOS_2001e2011 = GEODATA_910111_POP %>%
     DensPOP2011 = round(POP2011 / sum(AREA_UNION_PART*10^-6,  na.rm = TRUE),2),
     VarPOP0111 = round((POP2011 - POP2001) / POP2001 , 2)
     
-    )
+  )
 
 ####
 # * 1.4 POTENCIAL DEMOGRAFICO   ----
@@ -256,10 +255,10 @@ FREG18_DistMatrixLabels = left_join(FREG18_DistMatrixLabels, CAOP2018_FREG_Desco
 colnames(FREG18_DistMatrixLabels)[5] = "NEAR_DICOFRE18"
 
 FREG18_DistMatrixLabels_Wider = FREG18_DistMatrixLabels[, c("DISTANCE", "INPUT_DICOFRE18", "NEAR_DICOFRE18")] %>%
-                                      pivot_wider(names_from = NEAR_DICOFRE18, values_from = DISTANCE)
+  pivot_wider(names_from = NEAR_DICOFRE18, values_from = DISTANCE)
 
 FREG18_DistMatrixLabels_WiderF = FREG18_DistMatrixLabels_Wider %>% 
-                                      select(sort(current_vars()))
+  select(sort(current_vars()))
 
 
 
@@ -366,7 +365,7 @@ COS2015withCAOP2018F = COS2015withCAOP2012v1eCAOP2018 %>% separate(COS2015_V1, c
 #starwars %>% group_by(gender) %>% filter(mass > mean(mass, na.rm = TRUE))
 
 COS2015withCAOP2018F_byCategN1_T1 = filter(COS2015withCAOP2018F, COS15_Nivel1 == 1)
-  
+
 OUT.CAOP2018_COS2015_byCategN1_T1 = COS2015withCAOP2018F_byCategN1_T1 %>% 
   group_by( DICOFRE18, FREG18_la ) %>% 
   summarise(
@@ -402,7 +401,7 @@ OUT.CAOP2018_COS2015_byCategN1_T1T2 = OUT.CAOP2018_COS2015_byCategN1_T1T2[ , c(1
 
 
 save(OUT.POPCENSOS_2001e2011,
-          OUT.POTDEMO2011byFREG2018, 
-          OUT.ACESS_ALL_byFREG2018, 
-          OUT.CAOP2018_COS2015_byCategN1_T1T2,
-        file = "OUT.TRANSFURBANAS.PREPROCESSING.V01.RData" )
+     OUT.POTDEMO2011byFREG2018, 
+     OUT.ACESS_ALL_byFREG2018, 
+     OUT.CAOP2018_COS2015_byCategN1_T1T2,
+     file = "OUT.TRANSFURBANAS.PREPROCESSING.V01.RData" )
