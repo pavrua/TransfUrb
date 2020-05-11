@@ -10,7 +10,7 @@
 
 library("tidyverse")
 library("sf")
-library("tidyselec")
+#library("tidyselec")
 
 
 
@@ -52,21 +52,40 @@ sourceSIG_COS_gdb = paste(path, "02_RECURSOS/020_DADOSGERAIS/SIG/COS/COS.gdb", s
 
 
 
-CENSOS1991_POP = read_delim(file = paste(sourceTABLE_demografia, "CENSOS1991_POPULACAO.txt",sep=""), col_names = TRUE, delim = "\t", 
-                            col_types = cols(
-                              NUTS1 = col_character(),
-                              NUTS2 = col_character(),
-                              NUTS3 = col_character(),
-                              CONCELHO = col_character(),
-                              FREGUESIA = col_character(),
-                              SECCAO = col_character(),
-                              SUBSEC = col_character()
-                                             ) )
+#CENSOS1991_POP = read.delim(file = paste(sourceTABLE_demografia, "CENSOS1991_POPULACAO.txt",sep=""), header = TRUE)
+CENSOS1991_POP =  read_delim(file = paste(sourceTABLE_demografia, "C1991_BGRI_GE5_Ori.txt",sep = ""), delim = "\t", 
+                             col_types = cols_only(SUBSEC = col_character(),
+                                                   SEXO_DSG = col_character(),
+                                                   Total = col_double(),
+                                                   GE_0_4 = col_double(),
+                                                   GE_5_9 = col_double(),
+                                                   GE_10_14 = col_double(),
+                                                   GE_15_19 = col_double(),
+                                                   GE_20_24 = col_double(),
+                                                   GE_25_29 = col_double(),
+                                                   GE_30_34 = col_double(),
+                                                   GE_35_39 = col_double(),
+                                                   GE_40_44 = col_double(),
+                                                   GE_45_49 = col_double(),
+                                                   GE_50_54 = col_double(),
+                                                   GE_55_59 = col_double(),
+                                                   GE_60_64 = col_double(),
+                                                   GE_65_69 = col_double(),
+                                                   GE_70_74 = col_double(),
+                                                   GE_75_79 = col_double(),
+                                                   GE_80_84 = col_double(),
+                                                   GE_85_89 = col_double(),
+                                                   GE_90_94 = col_double(),
+                                                   GE_95_99 = col_double(),
+                                                   GE_100e = col_double()
+                                                   )
+                             )
+
 
 
 CENSOS1991_POP = subset(CENSOS1991_POP, SEXO_DSG == "HM")
 
-CENSOS1991_POP$C91_GETotal = CENSOS1991_POP$'Total '
+CENSOS1991_POP$C91_GETotal = CENSOS1991_POP$Total
 CENSOS1991_POP$C91_GEate20 = CENSOS1991_POP$GE_0_4 + CENSOS1991_POP$GE_5_9 + CENSOS1991_POP$GE_10_14 + CENSOS1991_POP$GE_15_19
 CENSOS1991_POP$C91_GE2065 = CENSOS1991_POP$GE_20_24 + CENSOS1991_POP$GE_25_29 + CENSOS1991_POP$GE_30_34 + CENSOS1991_POP$GE_35_39 +
   CENSOS1991_POP$GE_40_44 + CENSOS1991_POP$GE_45_49 + CENSOS1991_POP$GE_50_54 + CENSOS1991_POP$GE_55_59 + CENSOS1991_POP$GE_60_64
@@ -74,18 +93,34 @@ CENSOS1991_POP$C91_GEmais65 = CENSOS1991_POP$GE_65_69 + CENSOS1991_POP$GE_70_74 
   CENSOS1991_POP$GE_85_89 + CENSOS1991_POP$GE_90_94 + CENSOS1991_POP$GE_95_99 + CENSOS1991_POP$GE_100e 
 
 
-CENSOS2001_POP = read_delim(file = paste(sourceTABLE_demografia, "CENSOS2001_POPULACAO.txt",sep=""), col_names = TRUE, delim = "\t" 
-                            , col_types = cols(
-                              NUTS1_EU02 = col_character(),
-                              NUTS2_EU02 = col_character(),
-                              NUTS3_EU02 = col_character(),
-                              CONCELHO_EU02 = col_character(),
-                              FREGUESIA_EU02 = col_character(),
-                              SECCAO_EU02 = col_character(),
-                              SUBSEC_EU02 = col_character()
+#CENSOS2001_POP = read.delim(file = paste(sourceTABLE_demografia, "CENSOS2001_POPULACAO.txt",sep=""), header = TRUE)
+CENSOS2001_POP = read_delim(file = paste(sourceTABLE_demografia, "C2001_BGRI_GE5_Ori.txt",sep = ""), delim = "\t", 
+                            col_types = cols_only(SUBSEC_EU02 = col_character(),
+                                                  SEXO = col_character(),
+                                                  Total = col_double(),
+                                                  GE_0_4 = col_double(),
+                                                  GE_5_9 = col_double(),
+                                                  GE_10_14 = col_double(),
+                                                  GE_15_19 = col_double(),
+                                                  GE_20_24 = col_double(),
+                                                  GE_25_29 = col_double(),
+                                                  GE_30_34 = col_double(),
+                                                  GE_35_39 = col_double(),
+                                                  GE_40_44 = col_double(),
+                                                  GE_45_49 = col_double(),
+                                                  GE_50_54 = col_double(),
+                                                  GE_55_59 = col_double(),
+                                                  GE_60_64 = col_double(),
+                                                  GE_65_69 = col_double(),
+                                                  GE_70_74 = col_double(),
+                                                  GE_75_79 = col_double(),
+                                                  GE_80_84 = col_double(),
+                                                  GE_85_89 = col_double(),
+                                                  GE_90_94 = col_double(),
+                                                  GE_95_99 = col_double(),
+                                                  GE_100e = col_double()
                             )
-                            )
-
+)
 CENSOS2001_POP = subset(CENSOS2001_POP, SEXO == "HM")
 
 
@@ -97,22 +132,38 @@ CENSOS2001_POP$C01_GEmais65 = CENSOS2001_POP$GE_65_69 + CENSOS2001_POP$GE_70_74 
   CENSOS2001_POP$GE_85_89 + CENSOS2001_POP$GE_90_94 + CENSOS2001_POP$GE_95_99 + CENSOS2001_POP$GE_100e
 
 
-
-CENSOS2011_POP = read_delim(file = paste(sourceTABLE_demografia, "CENSOS2011_POPULACAO.txt",sep=""), col_names = TRUE, delim = "\t"
-                            , col_types = cols(
-                              NUTS1 = col_character(),
-                              NUTS2 = col_character(),
-                              NUTS3 = col_character(),
-                              MUNICIPIO = col_character(),
-                              FREGUESIA = col_character(),
-                              SECCAO = col_character(),
-                              SUBSECCAO = col_character()
+#CENSOS2011_POP = read.delim(file = paste(sourceTABLE_demografia, "CENSOS2011_POPULACAO.txt",sep=""), header = TRUE, sep = "\t")
+CENSOS2011_POP = read_delim(file = paste(sourceTABLE_demografia, "C2011_BGRI_GE5_Ori.txt",sep = ""), delim = "\t", 
+                            col_types = cols_only(SUBSECCAO = col_character(),
+                                                  SEXO = col_character(),
+                                                  Total = col_double(),
+                                                  GE_0_4 = col_double(),
+                                                  GE_5_9 = col_double(),
+                                                  GE_10_14 = col_double(),
+                                                  GE_15_19 = col_double(),
+                                                  GE_20_24 = col_double(),
+                                                  GE_25_29 = col_double(),
+                                                  GE_30_34 = col_double(),
+                                                  GE_35_39 = col_double(),
+                                                  GE_40_44 = col_double(),
+                                                  GE_45_49 = col_double(),
+                                                  GE_50_54 = col_double(),
+                                                  GE_55_59 = col_double(),
+                                                  GE_60_64 = col_double(),
+                                                  GE_65_69 = col_double(),
+                                                  GE_70_74 = col_double(),
+                                                  GE_75_79 = col_double(),
+                                                  GE_80_84 = col_double(),
+                                                  GE_85_89 = col_double(),
+                                                  GE_90_94 = col_double(),
+                                                  GE_95_99 = col_double(),
+                                                  GE_100e = col_double()
                             )
-                            )
+)
 
 CENSOS2011_POP = subset(CENSOS2011_POP, SEXO == "HM")
 
-CENSOS2011_POP$C11_GETotal = CENSOS2011_POP$'Total '
+CENSOS2011_POP$C11_GETotal = CENSOS2011_POP$Total
 CENSOS2011_POP$C11_GEate20 = CENSOS2011_POP$GE_0_4 + CENSOS2011_POP$GE_5_9 + CENSOS2011_POP$GE_10_14 + CENSOS2011_POP$GE_15_19
 CENSOS2011_POP$C11_GE2065 = CENSOS2011_POP$GE_20_24 + CENSOS2011_POP$GE_25_29 + CENSOS2011_POP$GE_30_34 + CENSOS2011_POP$GE_35_39 +
   CENSOS2011_POP$GE_40_44 + CENSOS2011_POP$GE_45_49 + CENSOS2011_POP$GE_50_54 + CENSOS2011_POP$GE_55_59 + CENSOS2011_POP$GE_60_64
@@ -128,12 +179,16 @@ CENSOS2011_POP$C11_GEmais65 = CENSOS2011_POP$GE_65_69 + CENSOS2011_POP$GE_70_74 
 UNION_SUBSECtoNUTSIII.shp = read_sf(dsn = sourceSIG_GEODATA_VARIOS_gdb, layer = "UNION_SUBSECtoNUTSIII_2018_LxCorrigido")
 UNION_SUBSECtoNUTSIII = UNION_SUBSECtoNUTSIII.shp %>% st_drop_geometry()
 
+selectCol = c("BGRI11", "BGRI2001", "BGRE1991", 	"DICOFRE12",	"DICOFRE18", 	"AREASUBSEC91", "AREASUBSEC01", 	"AREASUBSEC11", "AREA_UNION_PART", "AREAFRE12v1", "AREAFREG18")
 
 GEODATA_910111 = UNION_SUBSECtoNUTSIII
+GEODATA_910111 = GEODATA_910111[,selectCol]
+
 GEODATA_910111$PONDSUBSEC1191 = GEODATA_910111$AREA_UNION_PART / GEODATA_910111$AREASUBSEC91
 GEODATA_910111$PONDSUBSEC1101 = GEODATA_910111$AREA_UNION_PART / GEODATA_910111$AREASUBSEC01
 GEODATA_910111$PONDSUBSEC1111 = GEODATA_910111$AREA_UNION_PART / GEODATA_910111$AREASUBSEC11
 GEODATA_910111$PONDAREAFREG18 = GEODATA_910111$AREA_UNION_PART / GEODATA_910111$AREAFREG18
+
 
 
 ####
@@ -142,21 +197,21 @@ GEODATA_910111$PONDAREAFREG18 = GEODATA_910111$AREA_UNION_PART / GEODATA_910111$
 
 GEODATA_910111_POP = GEODATA_910111
 
-GEODATA_910111_POP = left_join(GEODATA_910111_POP, CENSOS1991_POP[,c("SUBSEC","C91_GETotal", "C91_GEate20", "C91_GE2065", "C91_GEmais65")], by = c("BGRE1991" = "SUBSEC"))
+GEODATA_910111_POP = merge(GEODATA_910111_POP, CENSOS1991_POP[,c("SUBSEC","C91_GETotal", "C91_GEate20", "C91_GE2065", "C91_GEmais65")], by.x = "BGRE1991" , by.y = "SUBSEC",  all.x = T  )
 
 GEODATA_910111_POP$C91_PopPOND_Total = GEODATA_910111_POP$C91_GETotal * GEODATA_910111_POP$PONDSUBSEC1191
 GEODATA_910111_POP$C91_PopPOND_GEate20 = GEODATA_910111_POP$C91_GEate20 * GEODATA_910111_POP$PONDSUBSEC1191
 GEODATA_910111_POP$C91_PopPOND_GE2065 = GEODATA_910111_POP$C91_GE2065 * GEODATA_910111_POP$PONDSUBSEC1191
 GEODATA_910111_POP$C91_PopPOND_GEmais65 = GEODATA_910111_POP$C91_GEmais65 * GEODATA_910111_POP$PONDSUBSEC1191
 
-GEODATA_910111_POP = left_join(GEODATA_910111_POP, CENSOS2001_POP[,c("SUBSEC_EU02","C01_GETotal", "C01_GEate20", "C01_GE2065", "C01_GEmais65")], by = c("BGRI2001" = "SUBSEC_EU02"))
+GEODATA_910111_POP = merge(GEODATA_910111_POP, CENSOS2001_POP[,c("SUBSEC_EU02","C01_GETotal", "C01_GEate20", "C01_GE2065", "C01_GEmais65")], by.x = "BGRI2001" , by.y = "SUBSEC_EU02",  all.x = T)
 
 GEODATA_910111_POP$C01_PopPOND_Total = GEODATA_910111_POP$C01_GETotal * GEODATA_910111_POP$PONDSUBSEC1101
 GEODATA_910111_POP$C01_PopPOND_GEate20 = GEODATA_910111_POP$C01_GEate20 * GEODATA_910111_POP$PONDSUBSEC1101
 GEODATA_910111_POP$C01_PopPOND_GE2065 = GEODATA_910111_POP$C01_GE2065 * GEODATA_910111_POP$PONDSUBSEC1101
 GEODATA_910111_POP$C01_PopPOND_GEmais65 = GEODATA_910111_POP$C01_GEmais65 * GEODATA_910111_POP$PONDSUBSEC1101
 
-GEODATA_910111_POP = left_join(GEODATA_910111_POP, CENSOS2011_POP[,c("SUBSECCAO","C11_GETotal", "C11_GEate20", "C11_GE2065", "C11_GEmais65")], by = c("BGRI11" = "SUBSECCAO"))
+GEODATA_910111_POP = merge(GEODATA_910111_POP, CENSOS2011_POP[,c("SUBSECCAO","C11_GETotal", "C11_GEate20", "C11_GE2065", "C11_GEmais65")], by.x = "BGRI11" , by.y = "SUBSECCAO",  all.x = T)
 
 GEODATA_910111_POP$C11_PopPOND_Total = GEODATA_910111_POP$C11_GETotal * GEODATA_910111_POP$PONDSUBSEC1111
 GEODATA_910111_POP$C11_PopPOND_GEate20 = GEODATA_910111_POP$C11_GEate20 * GEODATA_910111_POP$PONDSUBSEC1111
@@ -164,6 +219,9 @@ GEODATA_910111_POP$C11_PopPOND_GE2065 = GEODATA_910111_POP$C11_GE2065 * GEODATA_
 GEODATA_910111_POP$C11_PopPOND_GEmais65 = GEODATA_910111_POP$C11_GEmais65 * GEODATA_910111_POP$PONDSUBSEC1111
 
 
+col = as.matrix(colnames(GEODATA_910111_POP))
+test1 = GEODATA_910111_POP[GEODATA_910111_POP$DICOFRE18 == "090804",  ]
+test = GEODATA_910111_POP[GEODATA_910111_POP$DICOFRE18 == "090804", c( "BGRI2001", "PONDSUBSEC1101","AREA_UNION_PART", "AREASUBSEC01", "C01_GETotal" ) ]
 
 ####
 # * 1.out A   ----
@@ -192,7 +250,7 @@ CAOP2018_FREG_Descodifica$raio = sqrt(CAOP2018_FREG_Descodifica$AREAFREG18 / pi)
 
 FREG18_DistMatrix = read_sf(dsn = sourceSIG_GEODATA_VARIOS_gdb, layer = "CAOP2018_FREG_ONEPOLY_pointCentroid_DISTMATRIX")
 
-FREG18_DistMatrixLabels = left_join(FREG18_DistMatrix, CAOP2018_FREG_Descodifica[,c("ID","DICOFRE18")], by = c("INPUT_FID" = "ID"))
+FREG18_DistMatrixLabels = left_join(FREG18_DistMatrix, CAOP2018_FREG_Descodifica[,c("ID","DICOFRE18")], by.x = "INPUT_FID", by.y = "ID", all.x = T)
 colnames(FREG18_DistMatrixLabels)[4] = "INPUT_DICOFRE18"
 FREG18_DistMatrixLabels = left_join(FREG18_DistMatrixLabels, CAOP2018_FREG_Descodifica[,c("ID","DICOFRE18")], by = c("NEAR_FID" = "ID"))
 colnames(FREG18_DistMatrixLabels)[5] = "NEAR_DICOFRE18"
@@ -343,8 +401,8 @@ OUT.CAOP2018_COS2015_byCategN1_T1T2 = OUT.CAOP2018_COS2015_byCategN1_T1T2[ , c(1
 
 
 
-saveRDS(c("OUT.POPCENSOS_2001e2011",
-          "OUT.POTDEMO2011byFREG2018", 
-          "OUT.ACESS_ALL_byFREG2018", 
-          "OUT.CAOP2018_COS2015_byCategN1_T1T2"),
-        file = "OUT.TRANSFURBANAS.PREPROCESSING.V01.RDS" )
+save(OUT.POPCENSOS_2001e2011,
+          OUT.POTDEMO2011byFREG2018, 
+          OUT.ACESS_ALL_byFREG2018, 
+          OUT.CAOP2018_COS2015_byCategN1_T1T2,
+        file = "OUT.TRANSFURBANAS.PREPROCESSING.V01.RData" )
