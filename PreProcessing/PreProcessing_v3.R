@@ -420,26 +420,176 @@ amenitiesCat = levels(as.factor(poi_amenities_ori_prj_byCAOP2018e2012v1$amenity)
 
 #write.table(amenitiesCat, file = paste(OUT.tables.path, "amenitiesCat.txt", sep=""), row.names = F)
 
-amenitiesCat_process = read_delim( file = paste(OUT.tables.path, "amenitiesCat_processed.txt", sep=""), delim = "\t" )
+amenitiesCat_process = read_delim( file = paste(OUT.tables.path, "amenitiesCat_processed_V2.txt", sep=""), delim = "\t" )
 
-amenitiesCat_process_selection = filter(amenitiesCat_process, amenitiesCat_process$Selection == 1)
+amenitiesCat_SelAll = filter(amenitiesCat_process, amenitiesCat_process$Selection == 1)
+poi_amenities_SelAll_filtered = filter(poi_amenities_ori_prj_byCAOP2018e2012v1,poi_amenities_ori_prj_byCAOP2018e2012v1$amenity  %in% amenitiesCat_SelAll$POI_CatOri  )
 
-poi_amenities_filtered = filter(poi_amenities_ori_prj_byCAOP2018e2012v1,poi_amenities_ori_prj_byCAOP2018e2012v1$amenity  %in% amenitiesCat_process_selection$Category  )
+amenitiesCat_SelPOIEduc = filter(amenitiesCat_process, amenitiesCat_process$POI_Educacao == 1)
+poi_amenities_SelPOIEduc_filtered = filter(poi_amenities_ori_prj_byCAOP2018e2012v1,poi_amenities_ori_prj_byCAOP2018e2012v1$amenity  %in% amenitiesCat_SelPOIEduc$POI_CatOri  )
+
+amenitiesCat_SelPOISaude = filter(amenitiesCat_process, amenitiesCat_process$POI_Saude == 1)
+poi_amenities_SelPOISaude_filtered = filter(poi_amenities_ori_prj_byCAOP2018e2012v1,poi_amenities_ori_prj_byCAOP2018e2012v1$amenity  %in% amenitiesCat_SelPOISaude$POI_CatOri  )
+
+amenitiesCat_SelPOIServicos = filter(amenitiesCat_process, amenitiesCat_process$POI_Servicos == 1)
+poi_amenities_SelPOIServicos_filtered = filter(poi_amenities_ori_prj_byCAOP2018e2012v1,poi_amenities_ori_prj_byCAOP2018e2012v1$amenity  %in% amenitiesCat_SelPOIServicos$POI_CatOri  )
+
+amenitiesCat_SelPOICultura = filter(amenitiesCat_process, amenitiesCat_process$POI_Cultura == 1)
+poi_amenities_SelPOICultura_filtered = filter(poi_amenities_ori_prj_byCAOP2018e2012v1,poi_amenities_ori_prj_byCAOP2018e2012v1$amenity  %in% amenitiesCat_SelPOICultura$POI_CatOri  )
+
+amenitiesCat_SelPOIComercEss = filter(amenitiesCat_process, amenitiesCat_process$POI_ComercioEssencial == 1)
+poi_amenities_SelPOIComercEss_filtered = filter(poi_amenities_ori_prj_byCAOP2018e2012v1,poi_amenities_ori_prj_byCAOP2018e2012v1$amenity  %in% amenitiesCat_SelPOIComercEss$POI_CatOri  )
+
+amenitiesCat_SelPOIGeneral = filter(amenitiesCat_process, amenitiesCat_process$POI_General == 1)
+poi_amenities_SelPOIGeneral_filtered = filter(poi_amenities_ori_prj_byCAOP2018e2012v1,poi_amenities_ori_prj_byCAOP2018e2012v1$amenity  %in% amenitiesCat_SelPOIGeneral$POI_CatOri  )
+
+amenitiesCat_SelPOITourism = filter(amenitiesCat_process, amenitiesCat_process$POI_Tourism == 1)
+poi_amenities_SelPOITourism_filtered = filter(poi_amenities_ori_prj_byCAOP2018e2012v1,poi_amenities_ori_prj_byCAOP2018e2012v1$amenity  %in% amenitiesCat_SelPOITourism$POI_CatOri  )
+
+amenitiesCat_SelPOILazer = filter(amenitiesCat_process, amenitiesCat_process$POI_Lazer == 1)
+poi_amenities_SelPOILazer_filtered = filter(poi_amenities_ori_prj_byCAOP2018e2012v1,poi_amenities_ori_prj_byCAOP2018e2012v1$amenity  %in% amenitiesCat_SelPOILazer$POI_CatOri  )
+
+# * 2.2 POIs Shops ----
+
+poi_shop_byCAOP2018.shp = read_sf(dsn = sourceSIG_POIs_gdb, layer = "poi_shop_byCAOP2018")
+poi_shop_byCAOP2018 = poi_shop_byCAOP2018.shp %>% st_drop_geometry()
+
+shopCat = levels(as.factor(poi_shop_byCAOP2018$shop))
+
+#write.table(shopCat, file = paste(OUT.tables.path, "shopCat.txt", sep=""), row.names = F)
+
+shopCat_process = read_delim( file = paste(OUT.tables.path, "shopCat_processed.txt", sep=""), delim = "\t" )
+
+
+shopCat_SelAll = filter(shopCat_process, shopCat_process$Selection == 1)
+poi_shopCat_SelAll_filtered = filter(poi_shop_byCAOP2018 , poi_shop_byCAOP2018$shop  %in% shopCat_SelAll$POI_Shops_CatOri  )
+
+shopCat_SelPOIComercEss = filter(shopCat_process, shopCat_process$POI_Essenciais == 1)
+poi_shopCat_SelPOIComercEss_filtered = filter(poi_shop_byCAOP2018 , poi_shop_byCAOP2018$shop  %in% shopCat_SelPOIComercEss$POI_Shops_CatOri  )
+
+
+
+# * 2.3 POIs Buildings ----
+
+poi_shop_byCAOP2018.shp = read_sf(dsn = sourceSIG_POIs_gdb, layer = "poi_shop_byCAOP2018")
+poi_shop_byCAOP2018 = poi_shop_byCAOP2018.shp %>% st_drop_geometry()
+
+shopCat = levels(as.factor(poi_shop_byCAOP2018$shop))
+
+#write.table(shopCat, file = paste(OUT.tables.path, "shopCat.txt", sep=""), row.names = F)
+
+shopCat_process = read_delim( file = paste(OUT.tables.path, "shopCat_processed.txt", sep=""), delim = "\t" )
+
+
+shopCat_SelAll = filter(shopCat_process, shopCat_process$Selection == 1)
+poi_shopCat_SelAll_filtered = filter(poi_shop_byCAOP2018 , poi_shop_byCAOP2018$shop  %in% shopCat_SelAll$POI_Shops_CatOri  )
+
+
 
 ####
-# * 2.out A   ----
+# * 2.4 POIs by CAOP2018   ----
 ####
 
-OUT.poi_amenities_filtered_byCAOP2018 = poi_amenities_filtered %>% 
-  group_by( DICOFRE18, FREG18_la ) %>% 
+poi_amenities_SelAll_byCAOP2018 = poi_amenities_SelAll_filtered %>% 
+  group_by( DICOFRE18, ) %>% 
   summarise(
     
-    NumberOfAmenities = n()
+    N_poi_amenities_SelAll = n()
   )
 
 
+poi_amenities_SelPOIEduc_byCAOP2018 = poi_amenities_SelPOIEduc_filtered %>% 
+  group_by( DICOFRE18, ) %>% 
+  summarise(
+    
+    N_poi_amenities_SelPOIEduc = n()
+  )
+
+
+poi_amenities_SelPOISaude_byCAOP2018 = poi_amenities_SelPOISaude_filtered %>% 
+  group_by( DICOFRE18, ) %>% 
+  summarise(
+    
+    N_poi_amenities_SelPOISaude = n()
+  )
+
+poi_amenities_SelPOIServicos_byCAOP2018 = poi_amenities_SelPOIServicos_filtered %>% 
+  group_by( DICOFRE18, ) %>% 
+  summarise(
+    
+    N_poi_amenities_SelPOIServicos = n()
+  )
+
+
+poi_amenities_SelPOICultura_byCAOP2018 = poi_amenities_SelPOICultura_filtered %>% 
+  group_by( DICOFRE18, ) %>% 
+  summarise(
+    
+    N_poi_amenities_SelPOICulturas = n()
+  )
+
+poi_amenities_SelPOIComercEss_byCAOP2018 = poi_amenities_SelPOIComercEss_filtered %>% 
+  group_by( DICOFRE18, ) %>% 
+  summarise(
+    
+    N_poi_amenities_SelPOIComercEss = n()
+  )
+
+poi_amenities_SelPOIGeneral_byCAOP2018 = poi_amenities_SelPOIGeneral_filtered %>% 
+  group_by( DICOFRE18, ) %>% 
+  summarise(
+    
+    N_poi_amenities_SelPOIGeneral = n()
+  )
+
+poi_amenities_SelPOITourism_byCAOP2018 = poi_amenities_SelPOITourism_filtered %>% 
+  group_by( DICOFRE18, ) %>% 
+  summarise(
+    
+    N_poi_amenities_SelPOITourism = n()
+  )
+
+poi_amenities_SelPOILazer_byCAOP2018 = poi_amenities_SelPOILazer_filtered %>% 
+  group_by( DICOFRE18, ) %>% 
+  summarise(
+    
+    N_poi_amenities_SelPOILazer = n()
+  )
+
+poi_shopCat_SelAll_byCAOP2018 = poi_shopCat_SelAll_filtered %>% 
+  group_by( DICOFRE18, ) %>% 
+  summarise(
+    
+    N_poi_shopCat_SelAll = n()
+  )
+
+poi_shopCat_SelPOIComercEss_byCAOP2018 = poi_shopCat_SelPOIComercEss_filtered %>% 
+  group_by( DICOFRE18, ) %>% 
+  summarise(
+    
+    N_poi_shopCat_SelPOIComercEss = n()
+  )
+
+### * * 2.4.1 Add all to a unique tbl_df ####
+
+poi_ALL_CAOP2018 = left_join(CAOP2018_FREG_Descodifica, poi_amenities_SelAll_byCAOP2018, by = c("DICOFRE18" = "DICOFRE18" ))
+poi_ALL_CAOP2018 = left_join(poi_ALL_CAOP2018, poi_amenities_SelPOIEduc_byCAOP2018, by = c("DICOFRE18" = "DICOFRE18" ))
+poi_ALL_CAOP2018 = left_join(poi_ALL_CAOP2018, poi_amenities_SelPOISaude_byCAOP2018, by = c("DICOFRE18" = "DICOFRE18" ))
+poi_ALL_CAOP2018 = left_join(poi_ALL_CAOP2018, poi_amenities_SelPOIServicos_byCAOP2018, by = c("DICOFRE18" = "DICOFRE18" ))
+poi_ALL_CAOP2018 = left_join(poi_ALL_CAOP2018, poi_amenities_SelPOICultura_byCAOP2018, by = c("DICOFRE18" = "DICOFRE18" ))
+poi_ALL_CAOP2018 = left_join(poi_ALL_CAOP2018, poi_amenities_SelPOIComercEss_byCAOP2018, by = c("DICOFRE18" = "DICOFRE18" ))
+poi_ALL_CAOP2018 = left_join(poi_ALL_CAOP2018, poi_amenities_SelPOIGeneral_byCAOP2018, by = c("DICOFRE18" = "DICOFRE18" ))
+poi_ALL_CAOP2018 = left_join(poi_ALL_CAOP2018, poi_amenities_SelPOITourism_byCAOP2018, by = c("DICOFRE18" = "DICOFRE18" ))
+poi_ALL_CAOP2018 = left_join(poi_ALL_CAOP2018, poi_amenities_SelPOILazer_byCAOP2018, by = c("DICOFRE18" = "DICOFRE18" ))
+poi_ALL_CAOP2018 = left_join(poi_ALL_CAOP2018, poi_shopCat_SelAll_byCAOP2018, by = c("DICOFRE18" = "DICOFRE18" ))
+poi_ALL_CAOP2018 = left_join(poi_ALL_CAOP2018, poi_shopCat_SelPOIComercEss_byCAOP2018, by = c("DICOFRE18" = "DICOFRE18" ))
+
+poi_ALL_CAOP2018[is.na(poi_ALL_CAOP2018)] = 0
+
+
+
 ####
-# * 2.2 ACESSIBILIDADE   ----
+# * 2.5 ACESSIBILIDADE   ----
 ####
 
 
