@@ -1,7 +1,7 @@
 ####
 # | Criado em: 2020-05-10 |
 # PROCESSOS TRANSFORMACAO URBBANA
-# MODELACAO Vers?o 01 | 2020-05-10   ----
+# MODELACAO Versao 01 | 2020-05-10   ----
 ####
 
 ####

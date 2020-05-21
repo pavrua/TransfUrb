@@ -3,7 +3,8 @@ library(osmdata)
 library(sf)
 library(ggmap)
 library(xlsx)
-library("sf")
+library(mapedit)
+
 
 ####
 # 0. DIRECTORIES ----
@@ -18,6 +19,10 @@ setwd(paste(path, "02_TRABALHOS_DESENVOLVIDOS/023_DSS_COMPONENTES/0230_DEMOG_ECO
 
 OUT.tables.path = paste(path, "02_TRABALHOS_DESENVOLVIDOS/023_DSS_COMPONENTES/0230_DEMOG_ECON/02301_PadroesTransfUrbana_JAN/MODELACAO/OUT.tables/", sep = "")
 
+OUT.RData.path = paste(path, "02_TRABALHOS_DESENVOLVIDOS/023_DSS_COMPONENTES/0230_DEMOG_ECON/02301_PadroesTransfUrbana_JAN/MODELACAO/OUT.RData/", sep = "")
+
+OUT.dataBD.path = paste(path, "01_BASESDEDADOS/TABELAS/POIsOSM_V20200519/", sep = "")
+
 ArcGIS_BRIDGE = paste(path, "01_BASESDEDADOS/SIG/Z_ArcGIS_BRIDGE", sep = "")
 
 sourceSIG_ADMIN_CAOP_BASES_gdb = paste(path, "01_BASESDEDADOS/SIG/BASES_ADMIN_NACIONAL/ADMIN_CAOP_BASES.gdb", sep = "")
@@ -30,19 +35,15 @@ CAOP2018_FREG_Descodifica.shp = read_sf(dsn = sourceSIG_ADMIN_CAOP_BASES_gdb, la
 m <- c(-9.602, 36.932, -6.152, 42.180)
 
 
+
+
 ####
 # 1. GET POIs AMENITIES ----
 ####
 
-
 amenities.list = read.xlsx( file = paste(OUT.tables.path, "POIsOSM.xlsx", sep=""), "amenities")
 
-amenities.list.all.selec = filter(shops.list, shops.list$Selection == 1)
-
-list.amenities.tags = available_tags("amenity")
-
-#bounding box for Portugal https://www.openstreetmap.org/export#map=6/39.623/-8.459
-m <- c(-9.602, 36.932, -6.152, 42.180)
+amenities.list.all.selec = filter(amenities.list, amenities.list$Selection == 1)
 
 #building the query
 q.amenities.all <- m %>% 
@@ -53,23 +54,20 @@ amenities.list.all.getData = osmdata_sf(q.amenities.all)
 
 
 amenities.all.dados.pontos = amenities.list.all.getData$osm_points
-amenities.all.dados.pontos = amenities.all.dados.pontos[,c("osm_id", "name", "amenity", "amenity.type", "amenity_1", "amenity_2", "geometry" )]
+amenities.all.dados.pontos = amenities.all.dados.pontos[,c("osm_id", "name", "amenity", "geometry" )]
 amenities.all.dados.pontos_project = st_transform(amenities.all.dados.pontos, 3763)
 
 
 amenities.all.dados.polyg = amenities.list.all.getData$osm_polygons
-amenities.all.dados.polyg = amenities.all.dados.polyg[,c("osm_id", "name", "amenity", "amenity.type", "amenity_1", "amenity_2", "geometry" )]
+amenities.all.dados.polyg = amenities.all.dados.polyg[,c("osm_id", "name", "amenity", "geometry"  )]
 amenities.all.dados.polyg_project = st_transform(amenities.all.dados.polyg, 3763)
 amenities.all.dados.polyg_project_centroid = st_centroid(amenities.all.dados.polyg_project)
 #st_crs(amenities.all.dados.polyg_project_centroid)
 
 amenities.all.dados.multipolyg = amenities.list.all.getData$osm_multipolygons
-amenities.all.dados.multipolyg = amenities.all.dados.multipolyg[,c("osm_id", "name", "amenity",  "geometry" )]
+amenities.all.dados.multipolyg = amenities.all.dados.multipolyg[,c("osm_id", "name", "amenity", "geometry"  )]
 amenities.all.dados.multipolyg_project = st_transform(amenities.all.dados.multipolyg, 3763)
 amenities.all.dados.multipolyg_project_centroid = st_centroid(amenities.all.dados.multipolyg_project)
-amenities.all.dados.multipolyg_project_centroid$amenity.type = NA
-amenities.all.dados.multipolyg_project_centroid$amenity_1 = NA
-amenities.all.dados.multipolyg_project_centroid$amenity_2 = NA
 
 amenities.all.dados.sig = rbind(amenities.all.dados.pontos_project, amenities.all.dados.polyg_project_centroid)
 amenities.all.dados.sig = rbind(amenities.all.dados.sig, amenities.all.dados.multipolyg_project_centroid)
@@ -78,7 +76,6 @@ Encoding(amenities.all.dados.sig$name) <- "UTF-8"
 
 amenities.all.dados.sig.withoutNA = amenities.all.dados.sig[complete.cases(amenities.all.dados.sig$amenity),]
 
-CAOP2018_FREG_Descodifica.shp = read_sf(dsn = sourceSIG_ADMIN_CAOP_BASES_gdb, layer = "CAOP2018_FREG_ONEPOLY_LxCORRIGIDO")
 
 amenities.all.dados.sig.withoutNA.CAOP2018 = st_join(amenities.all.dados.sig.withoutNA, CAOP2018_FREG_Descodifica.shp )
 amenities.all.dados.sig.withoutNA.CAOP2018 = amenities.all.dados.sig.withoutNA.CAOP2018[complete.cases(amenities.all.dados.sig.withoutNA.CAOP2018$MUNICOD),]
@@ -93,10 +90,6 @@ st_write(amenities.all.dados.sig.withoutNA.CAOP2018, paste(ArcGIS_BRIDGE,"/ameni
 ####
 
 shops.list = read.xlsx( file = paste(OUT.tables.path, "POIsOSM.xlsx", sep=""), "shops")
-
-
-list.shops.tags = available_tags("shop")
-
 
 
  ####
@@ -162,28 +155,27 @@ shops.list.all.getData = osmdata_sf(q.shops.all)
 
 
 shops.all.dados.pontos = shops.list.all.getData$osm_points
-shops.all.dados.pontos = shops.all.dados.pontos[,c("osm_id", "name", "amenity", "shop", "geometry" )]
+shops.all.dados.pontos = shops.all.dados.pontos[,c("osm_id", "name",  "shop", "geometry" )]
 shops.all.dados.pontos_project = st_transform(shops.all.dados.pontos, 3763)
 
 
 shops.all.dados.polyg = shops.list.all.getData$osm_polygons
-shops.all.dados.polyg = shops.all.dados.polyg[,c("osm_id", "name", "amenity", "shop", "geometry" )]
+shops.all.dados.polyg = shops.all.dados.polyg[,c("osm_id", "name",  "shop", "geometry" )]
 shops.all.dados.polyg_project = st_transform(shops.all.dados.polyg, 3763)
 shops.all.dados.polyg_project_centroid = st_centroid(shops.all.dados.polyg_project)
 #st_crs(amenities.all.dados.polyg_project_centroid)
 
 shops.all.dados.multipolyg = shops.list.all.getData$osm_multipolygons
-shops.all.dados.multipolyg = shops.all.dados.multipolyg[,c("osm_id", "name", "shop", "geometry" )]
+shops.all.dados.multipolyg = shops.all.dados.multipolyg[,c("osm_id", "name",  "shop", "geometry" )]
 shops.all.dados.multipolyg_project = st_transform(shops.all.dados.multipolyg, 3763)
 shops.all.dados.multipolyg_project_centroid = st_centroid(shops.all.dados.multipolyg_project)
-shops.all.dados.multipolyg_project_centroid$amenity = NA
 
 shops.all.dados.sig = rbind(shops.all.dados.pontos_project, shops.all.dados.polyg_project_centroid)
 shops.all.dados.sig = rbind(shops.all.dados.sig, shops.all.dados.multipolyg_project_centroid)
 
 Encoding(shops.all.dados.sig$name) <- "UTF-8"
 
-shops.all.dados.sig.withoutNA = shops.all.dados.sig[complete.cases(shops.all.dados.sig$amenity),]
+shops.all.dados.sig.withoutNA = shops.all.dados.sig[complete.cases(shops.all.dados.sig$shop),]
 
 
 shops.all.dados.sig.withoutNA.CAOP2018 = st_join(shops.all.dados.sig.withoutNA, CAOP2018_FREG_Descodifica.shp )
@@ -218,18 +210,18 @@ leisure.list.all.getData = osmdata_sf(q.leisure.all)
 
 
 leisure.all.dados.pontos = leisure.list.all.getData$osm_points
-leisure.all.dados.pontos = leisure.all.dados.pontos[,c("osm_id", "name", "leisure", "amenity", "geometry" )]
+leisure.all.dados.pontos = leisure.all.dados.pontos[,c("osm_id", "name", "leisure",  "geometry" )]
 leisure.all.dados.pontos_project = st_transform(leisure.all.dados.pontos, 3763)
 
 
 leisure.all.dados.polyg = leisure.list.all.getData$osm_polygons
-leisure.all.dados.polyg = leisure.all.dados.polyg[,c("osm_id", "name", "leisure", "amenity",  "geometry" )]
+leisure.all.dados.polyg = leisure.all.dados.polyg[,c("osm_id", "name", "leisure",  "geometry" )]
 leisure.all.dados.polyg_project = st_transform(leisure.all.dados.polyg, 3763)
 leisure.all.dados.polyg_project_centroid = st_centroid(leisure.all.dados.polyg_project)
 #st_crs(amenities.all.dados.polyg_project_centroid)
 
 leisure.all.dados.multipolyg = leisure.list.all.getData$osm_multipolygons
-leisure.all.dados.multipolyg = leisure.all.dados.multipolyg[,c("osm_id", "name", "leisure", "amenity",  "geometry" )]
+leisure.all.dados.multipolyg = leisure.all.dados.multipolyg[,c("osm_id", "name", "leisure",  "geometry" )]
 leisure.all.dados.multipolyg_project = st_transform(leisure.all.dados.multipolyg, 3763)
 leisure.all.dados.multipolyg_project_centroid = st_centroid(leisure.all.dados.multipolyg_project)
 
@@ -261,8 +253,8 @@ st_write(leisure.all.dados.sig.withoutNA.CAOP2018, paste(ArcGIS_BRIDGE,"/leisure
 
 tourism.list = read.xlsx( file = paste(OUT.tables.path, "POIsOSM.xlsx", sep=""), "tourism")
 
-available_features()
-list.tourism.tags = available_tags("tourism")
+#available_features()
+#list.tourism.tags = available_tags("tourism")
 
 
 tourism.list.all.selec = filter(tourism.list, tourism.list$Selection_all == 1)
@@ -277,22 +269,21 @@ tourism.list.all.getData = osmdata_sf(q.tourism.all)
 
 
 tourism.all.dados.pontos = tourism.list.all.getData$osm_points
-tourism.all.dados.pontos = tourism.all.dados.pontos[,c("osm_id", "name", "tourism", "amenity", "amenity_1", "geometry" )]
+tourism.all.dados.pontos = tourism.all.dados.pontos[,c("osm_id", "name", "tourism", "geometry" )]
 tourism.all.dados.pontos_project = st_transform(tourism.all.dados.pontos, 3763)
 
 
-
 tourism.all.dados.polyg = tourism.list.all.getData$osm_polygons
-tourism.all.dados.polyg = tourism.all.dados.polyg[,c("osm_id", "name", "tourism", "amenity", "amenity_1", "geometry"  )]
+tourism.all.dados.polyg = tourism.all.dados.polyg[,c("osm_id", "name", "tourism", "geometry"   )]
 tourism.all.dados.polyg_project = st_transform(tourism.all.dados.polyg, 3763)
 tourism.all.dados.polyg_project_centroid = st_centroid(tourism.all.dados.polyg_project)
 #st_crs(amenities.all.dados.polyg_project_centroid)
 
 tourism.all.dados.multipolyg = tourism.list.all.getData$osm_multipolygons
-tourism.all.dados.multipolyg = tourism.all.dados.multipolyg[,c("osm_id", "name", "tourism", "amenity", "geometry" )]
+tourism.all.dados.multipolyg = tourism.all.dados.multipolyg[,c("osm_id", "name", "tourism", "geometry"  )]
 tourism.all.dados.multipolyg_project = st_transform(tourism.all.dados.multipolyg, 3763)
 tourism.all.dados.multipolyg_project_centroid = st_centroid(tourism.all.dados.multipolyg_project)
-tourism.all.dados.multipolyg$amenity_1 = NA
+
 
 tourism.all.dados.sig = rbind(tourism.all.dados.pontos_project, tourism.all.dados.polyg_project_centroid)
 tourism.all.dados.sig = rbind(tourism.all.dados.sig, tourism.all.dados.multipolyg_project_centroid)
@@ -309,4 +300,68 @@ tourism.all.dados.sig.withoutNA.CAOP2018 = tourism.all.dados.sig.withoutNA.CAOP2
 st_write(tourism.all.dados.sig.withoutNA.CAOP2018, paste(ArcGIS_BRIDGE,"/tourism.all.dados.sig.withoutNA.CAOP2018F.shp", sep=""), driver = "ESRI Shapefile" )
 
 
+
+####
+# 0.1 Combine on a unique database ----
+####
+
+amenities.all.dados.sig.withoutNA.CAOP2018_F = amenities.all.dados.sig.withoutNA.CAOP2018
+shops.all.dados.sig.withoutNA.CAOP2018_F = shops.all.dados.sig.withoutNA.CAOP2018
+leisure.all.dados.sig.withoutNA.CAOP2018_F = leisure.all.dados.sig.withoutNA.CAOP2018
+tourism.all.dados.sig.withoutNA.CAOP2018_F = tourism.all.dados.sig.withoutNA.CAOP2018
+
+amenities.all.dados.sig.withoutNA.CAOP2018_F$feature_type = "amenities"
+shops.all.dados.sig.withoutNA.CAOP2018_F$feature_type = "shops"
+leisure.all.dados.sig.withoutNA.CAOP2018_F$feature_type = "leisure"
+tourism.all.dados.sig.withoutNA.CAOP2018_F$feature_type = "tourism"
+
+
+all.dados.sig.withoutNA.CAOP2018.unique = mapedit:::combine_list_of_sf(list(amenities.all.dados.sig.withoutNA.CAOP2018_F, 
+                                  shops.all.dados.sig.withoutNA.CAOP2018_F,
+                                  leisure.all.dados.sig.withoutNA.CAOP2018_F,
+                                  tourism.all.dados.sig.withoutNA.CAOP2018_F)
+                             )
+
+all.dados.sig.withoutNA.CAOP2018.unique$amenity[all.dados.sig.withoutNA.CAOP2018.unique$amenity==""] <- NA
+all.dados.sig.withoutNA.CAOP2018.unique.F = unite(all.dados.sig.withoutNA.CAOP2018.unique, "tag", c("amenity", "shop", "leisure", "tourism" ), sep = "_", remove = FALSE, na.rm = TRUE)
+
+all.dados.sig.withoutNA.CAOP2018.unique.F.withoutGeom = all.dados.sig.withoutNA.CAOP2018.unique.F %>% st_drop_geometry()
+
+POIs = all.dados.sig.withoutNA.CAOP2018.unique.F.withoutGeom %>% 
+  group_by( feature_type, tag) %>% 
+  summarise(
+    
+    N_poi = n()
+  )
+
+write_delim(POIs, paste(OUT.tables.path,"POIs_categorizar.txt", sep=""), delim = "\t", quote_escape = "backslash")
+
+
+####
+# 0.2 SAVE GERAL ----
+####
+
+
+save(all.dados.sig.withoutNA.CAOP2018.unique.F,
+     amenities.list.all.getData,
+     shops.list.all.getData,
+     leisure.list.all.getData,
+     tourism.list.all.getData,
+     amenities.all.dados.sig.withoutNA.CAOP2018,
+     shops.all.dados.sig.withoutNA.CAOP2018, 
+     leisure.all.dados.sig.withoutNA.CAOP2018,
+     tourism.all.dados.sig.withoutNA.CAOP2018, 
+     file = paste(OUT.dataBD.path, "POIsProcessing_CAOP2018_V20200520.RData", sep="") )
+
+
+save(all.dados.sig.withoutNA.CAOP2018.unique.F,
+     amenities.list.all.getData,
+     shops.list.all.getData,
+     leisure.list.all.getData,
+     tourism.list.all.getData,
+     amenities.all.dados.sig.withoutNA.CAOP2018,
+     shops.all.dados.sig.withoutNA.CAOP2018, 
+     leisure.all.dados.sig.withoutNA.CAOP2018,
+     tourism.all.dados.sig.withoutNA.CAOP2018, 
+     file = paste(OUT.RData.path, "POIsProcessing.RData", sep="") )
 
