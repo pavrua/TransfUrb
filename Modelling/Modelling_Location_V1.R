@@ -451,6 +451,49 @@ colnames(Acess_BD_withAF)[45:46] = c("FA_Global23_scores_F1", "FA_Global23_score
 Acess_BD_withAF$FA_Global23_scores_F0 = ( (fit.FA_Global23b$values[1] * Acess_BD_withAF$FA_Global23_scores_F1) + (fit.FA_Global23b$values[2] * Acess_BD_withAF$FA_Global23_scores_F2) ) / (fit.FA_Global23b$values[1] + fit.FA_Global23b$values[2])
 
 
+#### * 4.3 AF FINAL ( ACESS + DEMO)  ####
+
+#### * * 4.3.1 AF_FINAL :: AF Acess  Potential & PotencialDemo   ####
+
+# Factor analysis: https://www.statmethods.net/advstats/factor.html
+
+Acess_BD_withAF_FINAL = left_join(Acess_BD, POTDEMO2011byFREG2018, by = c("DICOFRE18" = "DICOFRE18") )
+
+
+dataFA_FINAL = Acess_BD_withAF_FINAL[,c(
+  "PotDEMO2011",                                    
+  "Pot_Acess_POIs_Educaca",
+  "Pot_Acess_POIS_Saud",
+  "Pot_Acess_POIS_RestAli",
+  "Pot_Acess_POIS_ServGer",
+  "Pot_Acess_POIS_Lazer",
+  "Pot_Acess_POIS_ServPubCom"
+  )]
+
+fit.FA_FINAL <- prcomp(dataFA_FINAL, scale = TRUE)
+fit.FA_FINAL # print variance accounted for
+fit.FA_FINAL$rotation # pc loadings
+
+
+# Determine Number of Factors to Extract
+#ev <- eigen(cor(dataFA_AP)) # get eigenvalues
+#ap <- parallel(subject=nrow(dataFA_AP),var=ncol(dataFA_AP),
+#               rep=100,cent=.05)
+#nS <- nScree(x=ev$values, aparallel=ap$eigen$qevpea)
+#plotnScree(nS) 
+
+# Varimax Rotated Principal Components
+# retaining 5 components
+
+fit.FA_FINALb <- principal(dataFA_FINAL, nfactors=1, rotate="varimax")
+fit.FA_FINALb # print results 
+
+Acess_BD_withAF_FINAL = cbind(Acess_BD_withAF_FINAL, fit.FA_FINALb$scores)
+colnames(Acess_BD_withAF_FINAL)[ncol(Acess_BD_withAF_FINAL)] = "FA_FINAL_Fscores"
+
+
+
+
 
 
 ####
@@ -657,13 +700,48 @@ OUT.fit.CA_2F_groups = Acess_BD_withAFeAC %>%
   )
 
 
+
+
+
+#### * 5.4 CA AF FINAL  ####
+
+#### * 5.4.1 CA AF FINAL  ####
+
+Acess_BD_withAFeCA_FINAL = Acess_BD_withAF_FINAL
+data.CA_AF_FINAL = Acess_BD_withAFeCA_FINAL[,c("FA_FINAL_Fscores")]
+
+
+
+# Ward Hierarchical Clustering
+d.CA_AF_FINAL <- dist(data.CA_AF_FINAL, method = "euclidean") # distance matrix
+fit.CA_AF_FINAL <- hclust(d.CA_AF_FINAL, method="ward.D")
+plot(fit.CA_AF_FINAL) # display dendogram
+fit_CA_AF_FINAL_groups <- cutree(fit.CA_AF_FINAL, k=4) # cut tree into 5 clusters
+# draw dendogram with red borders around the 5 clusters
+rect.hclust(fit.CA_AF_FINAL, k=4, border="red")
+
+
+Acess_BD_withAFeCA_FINAL = cbind(Acess_BD_withAFeCA_FINAL, fit_CA_AF_FINAL_groups)
+
+OUT.CA_AF_FINAL_groups = Acess_BD_withAFeCA_FINAL %>% 
+  group_by( fit_CA_AF_FINAL_groups ) %>% 
+  summarise(
+    
+    dC1_AFeCA = round(mean(FA_FINAL_Fscores, na.rm = TRUE),2)
+    
+  )
+
+
+
+
+
 ####
 # 0 SAVES  ----
 ####
 
-write_delim(Acess_BD_withAFeAC, paste(OUT.tables.path,"FREG_CAOP2018_withLocationDATA.txt", sep=""), quote_escape = "backslash")
+write_delim(Acess_BD_withAFeCA_FINAL, paste(OUT.tables.path,"FREG_CAOP2018_Location_data.txt", sep=""), quote_escape = "backslash")
 
-save(Acess_BD_withAFeAC,
+save(Acess_BD_withAFeCA_FINAL, OUT.CA_AF_FINAL_groups,
      file = paste(OUT.RData.path, "FREG_CAOP2018_Location_data.RData", sep="") )
 
 
