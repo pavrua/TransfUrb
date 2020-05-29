@@ -57,15 +57,58 @@ load( paste(OUT.RData.path,"DEMOGRAFIA_01_11_15_CAOP2018.RData", sep="") )
 load( paste(OUT.RData.path,"FREG_CAOP2018_Location_data.RData", sep="") )
 
 #DADOS LOCALITY 
-#FICHEIROS: COS_COMBINE, OUT.CA_COS_COMBINE_F0_Wardgroups
+#FICHEIROS: db.COS_COMBINE, OUT.CA_COS_COMBINE_F0_Wardgroups
 load( paste(OUT.RData.path,"FREG_CAOP2018_Locality_data.RData", sep="") )
 
 
 ####
-# 1. VAR POP ----
+# 1. CLUSTERS NEW (6) ----
 ####
 
-#### * 2.1 AF VAR POP ####
+# 1.1 CLUSTERS FROM FACTORES ----
+
+db.ALL = left_join(db.COS_COMBINE, db.ACESSIBILITY, by = c("DICOFRE18" = "DICOFRE18") )
+db.ALL = left_join(db.ALL, OUT.POPCENSOS_2001e2011, by = c("DICOFRE18" = "DICOFRE18") )
+
+CA_ORIF_Ward7 = db.ALL[,c(
+  "FA_FINAL_Fscores", "FA_COSCOMBINE_Fscores", "POP_VarPop_C2001C2011")
+  ]
+
+
+# Ward Hierarchical Clustering
+d.CA_ORIF_Ward7  <- dist(CA_ORIF_Ward7, method = "euclidean") # distance matrix
+fit.CA_ORIF_Ward7 <- hclust(d.CA_ORIF_Ward7, method="ward.D")
+plot(fit.CA_ORIF_Ward7) # display dendogram
+CA_ORIF_Ward7_groups <- cutree(fit.CA_ORIF_Ward7, k=7) # cut tree into 5 clusters
+# draw dendogram with red borders around the 5 clusters
+rect.hclust(fit.CA_ORIF_Ward7, k=7, border="red")
+
+
+db.COS_COMBINE = cbind(db.COS_COMBINE, CA_ORIF_Ward7_groups)
+
+OUT.LOCALITY_CA_ORIF_Ward7_groups  = db.COS_COMBINE %>% 
+  group_by( CA_ORIF_Ward7_groups ) %>% 
+  summarise(
+    Ward7_groups_n = n(),
+    Locality_mean = round(mean(FA_COSCOMBINE_Fscores, na.rm = TRUE),2),
+    Locality_max = round(max(FA_COSCOMBINE_Fscores, na.rm = TRUE),2),
+    Locality_min = round(min(FA_COSCOMBINE_Fscores, na.rm = TRUE),2),
+    
+    Location_mean = round(mean(FA_FINAL_Fscores, na.rm = TRUE),2),
+    Location_max = round(max(FA_FINAL_Fscores, na.rm = TRUE),2),
+    Location_min = round(min(FA_FINAL_Fscores, na.rm = TRUE),2), 
+    
+    PopChange_mean = round(mean(POP_VarPop_C2001C2011, na.rm = TRUE),2),
+    PopChange_max = round(max(POP_VarPop_C2001C2011, na.rm = TRUE),2),
+    PopChange_min = round(min(POP_VarPop_C2001C2011, na.rm = TRUE),2),
+    
+    
+  )
+
+
+
+
+
 
 
 ####
@@ -101,7 +144,7 @@ SEL_POP = c(  "DICOFRE18", "FREG18_la",
 
 
 BD_TU_GLOBAL = left_join(OUT.POPCENSOS_2001e2011[,SEL_POP], Acess_BD_withAFeCA_FINAL[,SEL_LOCATION], by = c("DICOFRE18", "DICOFRE18") )
-BD_TU_GLOBAL = left_join(BD_TU_GLOBAL, COS_COMBINE[,SEL_LOCALITY], by = c("DICOFRE18", "DICOFRE18") )
+BD_TU_GLOBAL = left_join(BD_TU_GLOBAL, db.COS_COMBINE[,SEL_LOCALITY], by = c("DICOFRE18", "DICOFRE18") )
 
 BD_TU_GLOBAL$CL_LOCALITY = BD_TU_GLOBAL$CA_COS_COMBINE_F0_Wardgroups
 BD_TU_GLOBAL$CL_LOCATION = BD_TU_GLOBAL$fit_CA_AF_FINAL_groups

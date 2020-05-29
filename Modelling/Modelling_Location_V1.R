@@ -723,11 +723,11 @@ rect.hclust(fit.CA_AF_FINAL, k=4, border="red")
 
 Acess_BD_withAFeCA_FINAL = cbind(Acess_BD_withAFeCA_FINAL, fit_CA_AF_FINAL_groups)
 
-OUT.CA_AF_FINAL_groups = Acess_BD_withAFeCA_FINAL %>% 
+OUT.LOCATION_CA_Ward_AF_F0 = Acess_BD_withAFeCA_FINAL %>% 
   group_by( fit_CA_AF_FINAL_groups ) %>% 
   summarise(
     
-    dC1_AFeCA = round(mean(FA_FINAL_Fscores, na.rm = TRUE),2)
+    LOCATION_CAWard_AF_F0 = round(mean(FA_FINAL_Fscores, na.rm = TRUE),2)
     
   )
 
@@ -741,7 +741,9 @@ OUT.CA_AF_FINAL_groups = Acess_BD_withAFeCA_FINAL %>%
 
 write_delim(Acess_BD_withAFeCA_FINAL, paste(OUT.tables.path,"FREG_CAOP2018_Location_data.txt", sep=""), quote_escape = "backslash")
 
-save(Acess_BD_withAFeCA_FINAL, OUT.CA_AF_FINAL_groups,
+db.ACESSIBILITY = Acess_BD_withAFeCA_FINAL
+
+save(db.ACESSIBILITY, OUT.LOCATION_CA_Ward_AF_F0,
      file = paste(OUT.RData.path, "FREG_CAOP2018_Location_data.RData", sep="") )
 
 

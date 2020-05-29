@@ -176,7 +176,7 @@ rect.hclust(fit.CA_COS_COMBINE_F0, k=4, border="red")
 
 COS_COMBINE = cbind(COS_COMBINE, CA_COS_COMBINE_F0_Wardgroups)
 
-OUT.CA_COS_COMBINE_F0_Wardgroups  = COS_COMBINE %>% 
+OUT.LOCALITY_CA_Ward_AF_F0  = COS_COMBINE %>% 
   group_by( CA_COS_COMBINE_F0_Wardgroups ) %>% 
   summarise(
     CA_AF_F0 = round(mean(FA_COSCOMBINE_Fscores, na.rm = TRUE),2)
@@ -204,7 +204,9 @@ COS_COMBINE$CA_COS_COMBINE_F0_jenks = cut(COS_COMBINE$FA_COSCOMBINE_Fscores, get
 
 write_delim(COS_COMBINE, paste(OUT.tables.path,"FREG_CAOP2018_Locality_data.txt", sep=""), quote_escape = "backslash")
 
-save(COS_COMBINE, OUT.CA_COS_COMBINE_F0_Wardgroups,
+
+db.COS_COMBINE = COS_COMBINE
+save(db.COS_COMBINE, OUT.LOCALITY_CA_Ward_AF_F0,
      file = paste(OUT.RData.path, "FREG_CAOP2018_Locality_data.RData", sep="") )
 
 
