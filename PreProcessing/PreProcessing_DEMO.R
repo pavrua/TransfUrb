@@ -249,7 +249,9 @@ OUT.POPCENSOS_2001e2011 = GEODATA_910111_POP %>%
     POP_C2011_GEmais65 = round(sum(C11_PopPOND_GEmais65,  na.rm = TRUE),0),
     
     POP_C2011_DensPop = round(POP_C2011_Total / sum(INTERSECT_AREAPART*10^-6,  na.rm = TRUE),2),
-    POP_VarPop_C2001C2011 = round((POP_C2011_Total - POP_C2001_Total) / POP_C2001_Total , 2)
+    POP_VarPop_C2001C2011 = round((POP_C2011_Total - POP_C2001_Total) / POP_C2001_Total , 2),
+    
+    N_LUGARESbyFREG = n_distinct(LUG11)
     
   )
 
@@ -366,8 +368,8 @@ CAOP2018_FREG_Descodifica = CAOP2018_FREG_Descodifica.shp %>% st_drop_geometry()
 CAOP2018_FREG_Descodifica$ID = seq(1,nrow(CAOP2018_FREG_Descodifica))
 CAOP2018_FREG_Descodifica$raio = sqrt(CAOP2018_FREG_Descodifica$AREAFREG18 / pi)
 
-FREG18_DistMatrix = read_sf(dsn = sourceSIG_GEODATA_VARIOS_gdb, layer = "CAOP2018_FREG_ONEPOLY_pointCentroid_DISTMATRIX")
-
+#FREG18_DistMatrix = read_sf(dsn = sourceSIG_GEODATA_VARIOS_gdb, layer = "CAOP2018_FREG_ONEPOLY_pointCentroid_DISTMATRIX")
+FREG18_DistMatrix = read_sf(dsn = sourceSIG_GEODATA_VARIOS_gdb, layer = "FREG_CAOP2018_pointCentroid_LXAVRILH_CORRECT_DISTMATRIX")
 
 
 FREG18_DistMatrixLabels = merge(FREG18_DistMatrix, CAOP2018_FREG_Descodifica[,c("ID","DICOFRE18")], by.x ="INPUT_FID" , by.y = "ID", all.x = T)

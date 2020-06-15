@@ -68,6 +68,7 @@ COSandPOP = left_join(OUT.COS2015withCAOP2018F_N1_T0.wide, OUT.POPCENSOS_2001e20
 
 COSandPOP$PopDensByT1 = COSandPOP$POP_C2011_Total / COSandPOP$`1`*10^6
 COSandPOP$PopDens = COSandPOP$POP_C2011_Total / COSandPOP$AREAFREG18_N1*10^6
+COSandPOP$NLugByT1 = COSandPOP$N_LUGARESbyFREG / COSandPOP$`1`*10^6
 
 ####
 # 2 PROP COS T1 N123  ----
@@ -102,23 +103,23 @@ COS_N0T0[is.na(COS_N0T0)] <- 0
 ####
 
 
-dataFA_COS = COS_N0T0[,c(
-  "PropT111",  "PropT112",
-  "PropT121",  "PropT122",  
-  "PropT141" 
-  
-  )
-  ]
-
-# "PropT123" "PropT131" "PropT132" "PropT133" "PropT142", "PropT124", "PropT4","PropT5" "PropT2","PropT3"
-
-fit.FA_COS <- prcomp(dataFA_COS, scale = TRUE)
-fit.FA_COS
-fit.FA_COS$rotation # pc loadings
-
-
-fit.FA_COSb <- principal(dataFA_COS, nfactors=1, rotate="varimax")
-fit.FA_COSb # print results 
+# dataFA_COS = COS_N0T0[,c(
+#   "PropT111",  "PropT112",
+#   "PropT121",  "PropT122",  
+#   "PropT141" 
+#   
+#   )
+#   ]
+# 
+# # "PropT123" "PropT131" "PropT132" "PropT133" "PropT142", "PropT124", "PropT4","PropT5" "PropT2","PropT3"
+# 
+# fit.FA_COS <- prcomp(dataFA_COS, scale = TRUE)
+# fit.FA_COS
+# fit.FA_COS$rotation # pc loadings
+# 
+# 
+# fit.FA_COSb <- principal(dataFA_COS, nfactors=1, rotate="varimax")
+# fit.FA_COSb # print results 
 
 
 
@@ -128,7 +129,7 @@ COS_N0T0_sel = c("DICOFRE18", "PropT111",  "PropT112",
   "PropT121",  "PropT122",  
   "PropT141" )
 
-COS_COMBINE = left_join(COS_N0T0[,COS_N0T0_sel], COSandPOP[,c("DICOFRE18", "PopDens", "PopDensByT1")], by = c("DICOFRE18", "DICOFRE18") )
+COS_COMBINE = left_join(COS_N0T0[,COS_N0T0_sel], COSandPOP[,c("DICOFRE18", "PopDens", "PopDensByT1", "NLugByT1", "N_LUGARESbyFREG")], by = c("DICOFRE18", "DICOFRE18") )
 
 
 
@@ -136,7 +137,7 @@ dataFA_COS_COMBINE = COS_COMBINE[,c(
   "PropT111",  "PropT112",
   "PropT121",  "PropT122",  
   "PropT141",
-  "PopDens",
+  "NLugByT1",
   "PopDensByT1"
   )]
 
@@ -145,14 +146,15 @@ fit.COS_COMBINE
 fit.COS_COMBINE$rotation # pc loadings
 
 
-fit.COS_COMBINEb <- principal(dataFA_COS_COMBINE, nfactors=1, rotate="varimax")
+fit.COS_COMBINEb <- principal(dataFA_COS_COMBINE, nfactors=2, rotate="varimax")
 fit.COS_COMBINEb # print results 
 
-fit.COS_COMBINE_2Fb <- principal(dataFA_COS_COMBINE, nfactors=1, rotate="varimax")
-fit.COS_COMBINE_2Fb # print results 
+FA_LOCALITY_COMBINED = (fit.COS_COMBINEb$values[1] * fit.COS_COMBINEb$scores[,1]) + (fit.COS_COMBINEb$values[2] * fit.COS_COMBINEb$scores[,2])
+COS_COMBINE = cbind(COS_COMBINE, FA_LOCALITY_COMBINED)
+#colnames(COS_COMBINE)[ncol(COS_COMBINE)] = c("FA_COSCOMBINE_Fscores")
 
-COS_COMBINE = cbind(COS_COMBINE, fit.COS_COMBINE_2Fb$scores)
-colnames(COS_COMBINE)[ncol(COS_COMBINE)] = c("FA_COSCOMBINE_Fscores")
+COS_COMBINE$FA_LOCALITY_COMBINED_scale = scale(COS_COMBINE$FA_LOCALITY_COMBINED)
+
 
 ####
 # 4 CLUSTER ANALYSIS  ----
@@ -161,7 +163,7 @@ colnames(COS_COMBINE)[ncol(COS_COMBINE)] = c("FA_COSCOMBINE_Fscores")
 #### * 4.1 CA AF F0 ####
 
 CA_COS_COMBINE_F0 = COS_COMBINE[,c(
-  "FA_COSCOMBINE_Fscores")
+  "FA_LOCALITY_COMBINED_scale")
   ]
 
 
@@ -179,20 +181,8 @@ COS_COMBINE = cbind(COS_COMBINE, CA_COS_COMBINE_F0_Wardgroups)
 OUT.LOCALITY_CA_Ward_AF_F0  = COS_COMBINE %>% 
   group_by( CA_COS_COMBINE_F0_Wardgroups ) %>% 
   summarise(
-    CA_AF_F0 = round(mean(FA_COSCOMBINE_Fscores, na.rm = TRUE),2)
+    CA_AF_F0 = round(mean(FA_LOCALITY_COMBINED_scale, na.rm = TRUE),2)
   )
-
-# Clusters / Groups by quantile
-hist(COS_COMBINE$FA_COSCOMBINE_Fscores)
-boxplot(COS_COMBINE$FA_COSCOMBINE_Fscores)
-
-quantile(COS_COMBINE$FA_COSCOMBINE_Fscores)
-COS_COMBINE$CA_COS_COMBINE_F0_quantile = cut(COS_COMBINE$FA_COSCOMBINE_Fscores, quantile(COS_COMBINE$FA_COSCOMBINE_Fscores), labels = c("q1", "q2", "q3", "q4"), include.lowest = TRUE )
-
-# Clusters / Groups by jeanks
-getJenksBreaks(COS_COMBINE$FA_COSCOMBINE_Fscores,5)
-COS_COMBINE$CA_COS_COMBINE_F0_jenks = cut(COS_COMBINE$FA_COSCOMBINE_Fscores, getJenksBreaks(COS_COMBINE$FA_COSCOMBINE_Fscores,5), labels = c("jenks1", "jenks2", "jenks3", "jenks4"), include.lowest = TRUE )
-
 
 
 
